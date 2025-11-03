@@ -96,6 +96,38 @@ export const TOOLS: Tool[] = [
     },
   },
   {
+    name: 'search_collections',
+    description:
+      'Search for collections on The Noun Project. Returns a list of collections matching the search term.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Search term for collections (e.g., "winter", "business", "animals")',
+        },
+        blacklist: {
+          type: 'number',
+          enum: [0, 1],
+          description: 'Set to 1 to remove results matching terms or IDs in blacklist',
+        },
+        limit: {
+          type: 'number',
+          description: 'Maximum number of results to return',
+        },
+        prev_page: {
+          type: 'string',
+          description: 'Token for paging to the previous page',
+        },
+        next_page: {
+          type: 'string',
+          description: 'Token for paging to the next page',
+        },
+      },
+      required: ['query'],
+    },
+  },
+  {
     name: 'icon_autocomplete',
     description:
       'Get autocomplete suggestions for icon search terms. Useful for helping users discover related terms.',
@@ -126,7 +158,7 @@ export const TOOLS: Tool[] = [
   {
     name: 'get_download_url',
     description:
-      'Get a download URL for an icon with custom color and size options. Supports SVG and PNG formats.',
+      'Get a download URL for an icon with custom color and size options. Supports SVG and PNG formats. Note: Free API access is limited to public domain icons only.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -141,11 +173,11 @@ export const TOOLS: Tool[] = [
         filetype: {
           type: 'string',
           enum: ['svg', 'png'],
-          description: 'File format: svg or png',
+          description: 'File format: svg or png (note: SVG does not accept size parameter)',
         },
         size: {
           type: 'number',
-          description: 'For PNG, size in pixels (minimum 20, maximum 1200)',
+          description: 'For PNG only, size in pixels (minimum 20, maximum 1200)',
         },
       },
       required: ['icon_id'],

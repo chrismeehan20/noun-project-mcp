@@ -27,6 +27,14 @@ export interface GetCollectionParams {
   limit?: number;
 }
 
+export interface SearchCollectionsParams {
+  query: string;
+  blacklist?: 0 | 1;
+  limit?: number;
+  prev_page?: string;
+  next_page?: string;
+}
+
 export interface AutocompleteParams {
   query: string;
   limit?: number;
@@ -96,6 +104,31 @@ export class NounProjectAPI {
   }
 
   /**
+   * Search for collections
+   */
+  async searchCollections(params: SearchCollectionsParams) {
+    const { query, ...rest } = params;
+    const queryParams = new URLSearchParams({
+      query,
+      ...Object.fromEntries(
+        Object.entries(rest)
+          .filter(([_, v]) => v !== undefined)
+          .map(([k, v]) => [k, String(v)])
+      ),
+    });
+
+    const url = `${BASE_URL}/v2/collection?${queryParams}`;
+    const headers = this.oauth.getHeaders(url);
+
+    const response = await this.client.get('/v2/collection', {
+      params: Object.fromEntries(queryParams),
+      headers,
+    });
+
+    return response.data;
+  }
+
+  /**
    * Get a collection by ID
    */
   async getCollection(params: GetCollectionParams) {
@@ -146,10 +179,10 @@ export class NounProjectAPI {
    * Check current API usage and limits
    */
   async checkUsage() {
-    const url = `${BASE_URL}/v2/oauth/usage`;
+    const url = `${BASE_URL}/v2/client/usage`;
     const headers = this.oauth.getHeaders(url);
 
-    const response = await this.client.get('/v2/oauth/usage', {
+    const response = await this.client.get('/v2/client/usage', {
       headers,
     });
 
@@ -158,6 +191,7 @@ export class NounProjectAPI {
 
   /**
    * Get download URL for an icon with custom color/size
+   * Note: Free API access is limited to public domain icons
    */
   async getDownloadUrl(params: DownloadIconParams) {
     const { icon_id, ...rest } = params;

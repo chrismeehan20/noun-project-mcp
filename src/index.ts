@@ -87,6 +87,18 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
         };
       }
 
+      case 'search_collections': {
+        const result = await api.searchCollections(args as any);
+        return {
+          content: [
+            {
+              type: 'text',
+              text: JSON.stringify(result, null, 2),
+            },
+          ],
+        };
+      }
+
       case 'icon_autocomplete': {
         const result = await api.autocomplete(args as any);
         return {
