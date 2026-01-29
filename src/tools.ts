@@ -4,7 +4,7 @@ export const TOOLS: Tool[] = [
   {
     name: 'search_icons',
     description:
-      'Search for icons on The Noun Project. Supports filtering by style (solid/line), line weight, public domain status, and more.',
+      'Search for icons on The Noun Project by keyword. Returns a paginated list of icons with metadata, thumbnails, and attribution info. Supports filtering by visual style (solid/line), line weight, and public domain status. Use this as the primary way to find icons for UI design, presentations, or documentation.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -16,7 +16,7 @@ export const TOOLS: Tool[] = [
           type: 'string',
           enum: ['solid', 'line', 'solid,line'],
           description:
-            'Filter by icon style: solid, line, or both (solid,line)',
+            'Filter by icon style: solid (filled), line (outline), or both',
         },
         line_weight: {
           type: ['number', 'string'],
@@ -26,7 +26,7 @@ export const TOOLS: Tool[] = [
         limit_to_public_domain: {
           type: 'number',
           enum: [0, 1],
-          description: 'Set to 1 to limit results to public domain icons only',
+          description: 'Set to 1 to limit results to public domain icons only (free to use without attribution)',
         },
         thumbnail_size: {
           type: 'number',
@@ -40,22 +40,35 @@ export const TOOLS: Tool[] = [
         },
         limit: {
           type: 'number',
-          description: 'Maximum number of results to return',
+          description: 'Maximum number of results to return (default varies by API)',
+        },
+        next_page: {
+          type: 'string',
+          description: 'Pagination token for the next page of results',
+        },
+        prev_page: {
+          type: 'string',
+          description: 'Pagination token for the previous page of results',
         },
       },
       required: ['query'],
+    },
+    annotations: {
+      title: 'Search Icons',
+      readOnlyHint: true,
+      openWorldHint: true,
     },
   },
   {
     name: 'get_icon',
     description:
-      'Get detailed information about a specific icon by its ID. Returns icon metadata, creator info, tags, and download URLs.',
+      'Get detailed information about a specific icon by its numeric ID. Returns full metadata including creator info, tags, license, and download URLs. Use this after search_icons to get complete details about a specific result.',
     inputSchema: {
       type: 'object',
       properties: {
         icon_id: {
           type: 'number',
-          description: 'The unique ID of the icon',
+          description: 'The unique numeric ID of the icon',
         },
         thumbnail_size: {
           type: 'number',
@@ -65,11 +78,16 @@ export const TOOLS: Tool[] = [
       },
       required: ['icon_id'],
     },
+    annotations: {
+      title: 'Get Icon Details',
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
   },
   {
     name: 'get_collection',
     description:
-      'Get a collection by ID. Returns collection metadata and the icons it contains.',
+      'Get a curated collection of icons by its ID. Returns collection metadata and the icons it contains. Collections are themed groups of icons (e.g., "Weather Icons", "Business Icons").',
     inputSchema: {
       type: 'object',
       properties: {
@@ -94,11 +112,16 @@ export const TOOLS: Tool[] = [
       },
       required: ['collection_id'],
     },
+    annotations: {
+      title: 'Get Collection',
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
   },
   {
     name: 'search_collections',
     description:
-      'Search for collections on The Noun Project. Returns a list of collections matching the search term.',
+      'Search for icon collections on The Noun Project by keyword. Returns paginated results of themed icon groups. Use this to discover curated sets of related icons.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -126,11 +149,16 @@ export const TOOLS: Tool[] = [
       },
       required: ['query'],
     },
+    annotations: {
+      title: 'Search Collections',
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
   },
   {
     name: 'icon_autocomplete',
     description:
-      'Get autocomplete suggestions for icon search terms. Useful for helping users discover related terms.',
+      'Get autocomplete suggestions for icon search terms. Returns a list of popular search terms matching the input. Use this to help discover related keywords before performing a full search.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -145,20 +173,30 @@ export const TOOLS: Tool[] = [
       },
       required: ['query'],
     },
+    annotations: {
+      title: 'Icon Autocomplete',
+      readOnlyHint: true,
+      openWorldHint: true,
+    },
   },
   {
     name: 'check_usage',
     description:
-      'Check current API usage and limits. Returns monthly quota information including usage count and remaining requests.',
+      'Check current Noun Project API usage and monthly quota. Returns usage count and remaining requests. Use this to monitor rate limits before making bulk requests.',
     inputSchema: {
       type: 'object',
       properties: {},
+    },
+    annotations: {
+      title: 'Check API Usage',
+      readOnlyHint: true,
+      openWorldHint: true,
     },
   },
   {
     name: 'get_download_url',
     description:
-      'Get a download URL for an icon with custom color and size options. Supports SVG and PNG formats. Note: Free API access is limited to public domain icons only.',
+      'Get a download URL for an icon with custom color and size options. Supports SVG and PNG formats. For PNG, you can specify pixel size (20-1200). For color, use hex values without the # prefix. Note: Free API access is limited to public domain icons only.',
     inputSchema: {
       type: 'object',
       properties: {
@@ -168,12 +206,12 @@ export const TOOLS: Tool[] = [
         },
         color: {
           type: 'string',
-          description: 'Hexadecimal color value (e.g., "FF0000" for red)',
+          description: 'Hexadecimal color value without # (e.g., "FF0000" for red)',
         },
         filetype: {
           type: 'string',
           enum: ['svg', 'png'],
-          description: 'File format: svg or png (note: SVG does not accept size parameter)',
+          description: 'File format: svg or png (SVG does not accept size parameter)',
         },
         size: {
           type: 'number',
@@ -181,6 +219,11 @@ export const TOOLS: Tool[] = [
         },
       },
       required: ['icon_id'],
+    },
+    annotations: {
+      title: 'Get Download URL',
+      readOnlyHint: true,
+      openWorldHint: true,
     },
   },
 ];

@@ -1,6 +1,6 @@
 # Noun Project MCP Server
 
-A Model Context Protocol (MCP) server for The Noun Project API, enabling Claude Code to search and retrieve icons programmatically.
+A Model Context Protocol (MCP) server for The Noun Project API, enabling **Claude Code** and **Claude Cowork** to search and retrieve icons programmatically.
 
 ## Features
 
@@ -56,6 +56,47 @@ claude mcp add --transport stdio noun-project \
   --env NOUN_PROJECT_API_SECRET=your_api_secret_here \
   -- node /absolute/path/to/noun-project-mcp/dist/index.js
 ```
+
+### Claude Cowork (Desktop App)
+
+Add the following to your `claude_desktop_config.json`:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "noun-project": {
+      "command": "npx",
+      "args": ["-y", "noun-project-mcp"],
+      "env": {
+        "NOUN_PROJECT_API_KEY": "your_api_key_here",
+        "NOUN_PROJECT_API_SECRET": "your_api_secret_here"
+      }
+    }
+  }
+}
+```
+
+Or for a local development build:
+
+```json
+{
+  "mcpServers": {
+    "noun-project": {
+      "command": "node",
+      "args": ["/absolute/path/to/noun-project-mcp/dist/index.js"],
+      "env": {
+        "NOUN_PROJECT_API_KEY": "your_api_key_here",
+        "NOUN_PROJECT_API_SECRET": "your_api_secret_here"
+      }
+    }
+  }
+}
+```
+
+Restart Claude Cowork after editing the config file.
 
 ## Available Tools
 
@@ -114,7 +155,25 @@ Retrieve a collection and its icons.
 }
 ```
 
-### 4. icon_autocomplete
+### 4. search_collections
+
+Search for icon collections by keyword.
+
+**Parameters:**
+- `query` (required): Search term (e.g., "winter", "business", "animals")
+- `blacklist` (optional): Set to 1 to exclude blacklisted terms/IDs
+- `limit` (optional): Maximum number of results
+- `prev_page` / `next_page` (optional): Pagination tokens
+
+**Example:**
+```javascript
+{
+  "query": "weather",
+  "limit": 5
+}
+```
+
+### 5. icon_autocomplete
 
 Get autocomplete suggestions for search terms.
 
@@ -130,13 +189,13 @@ Get autocomplete suggestions for search terms.
 }
 ```
 
-### 5. check_usage
+### 6. check_usage
 
 Check current API usage and limits.
 
 **Parameters:** None
 
-### 6. get_download_url
+### 7. get_download_url
 
 Get a download URL for an icon with customization.
 

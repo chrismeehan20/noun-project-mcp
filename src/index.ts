@@ -6,12 +6,8 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import dotenv from 'dotenv';
 import { NounProjectAPI } from './api.js';
 import { TOOLS } from './tools.js';
-
-// Load environment variables
-dotenv.config();
 
 // Validate required environment variables
 const API_KEY = process.env.NOUN_PROJECT_API_KEY;
@@ -138,9 +134,20 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       default:
         throw new Error(`Unknown tool: ${name}`);
     }
-  } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : 'Unknown error occurred';
+  } catch (error: unknown) {
+    let errorMessage = 'Unknown error occurred';
+    if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+    // Extract detailed error info from Noun Project API responses
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+      const axiosError = error as { response?: { status?: number; data?: unknown } };
+      if (axiosError.response?.data) {
+        const data = axiosError.response.data;
+        const status = axiosError.response.status;
+        errorMessage = `HTTP ${status}: ${typeof data === 'string' ? data : JSON.stringify(data)}`;
+      }
+    }
     return {
       content: [
         {
