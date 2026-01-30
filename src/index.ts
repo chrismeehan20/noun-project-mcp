@@ -6,7 +6,7 @@ import {
   CallToolRequestSchema,
   ListToolsRequestSchema,
 } from '@modelcontextprotocol/sdk/types.js';
-import { NounProjectAPI } from './api.js';
+import { NounProjectAPI, SearchIconsParams, GetIconParams, GetCollectionParams, SearchCollectionsParams, AutocompleteParams, DownloadIconParams } from './api.js';
 import { TOOLS } from './tools.js';
 
 // Validate required environment variables
@@ -20,6 +20,17 @@ if (!API_KEY || !API_SECRET) {
 
 // Initialize API client
 const api = new NounProjectAPI(API_KEY, API_SECRET);
+
+// Tool name → API method mapping
+const toolHandlers: Record<string, (args: Record<string, unknown>) => Promise<unknown>> = {
+  search_icons: (args) => api.searchIcons(args as unknown as SearchIconsParams),
+  get_icon: (args) => api.getIcon(args as unknown as GetIconParams),
+  get_collection: (args) => api.getCollection(args as unknown as GetCollectionParams),
+  search_collections: (args) => api.searchCollections(args as unknown as SearchCollectionsParams),
+  icon_autocomplete: (args) => api.autocomplete(args as unknown as AutocompleteParams),
+  check_usage: () => api.checkUsage(),
+  get_download_url: (args) => api.getDownloadUrl(args as unknown as DownloadIconParams),
+};
 
 // Create MCP server
 const server = new Server(
@@ -45,95 +56,21 @@ server.setRequestHandler(ListToolsRequestSchema, async () => {
 server.setRequestHandler(CallToolRequestSchema, async (request) => {
   try {
     const { name, arguments: args } = request.params;
+    const handler = toolHandlers[name];
 
-    switch (name) {
-      case 'search_icons': {
-        const result = await api.searchIcons(args as any);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_icon': {
-        const result = await api.getIcon(args as any);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_collection': {
-        const result = await api.getCollection(args as any);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'search_collections': {
-        const result = await api.searchCollections(args as any);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'icon_autocomplete': {
-        const result = await api.autocomplete(args as any);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'check_usage': {
-        const result = await api.checkUsage();
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      case 'get_download_url': {
-        const result = await api.getDownloadUrl(args as any);
-        return {
-          content: [
-            {
-              type: 'text',
-              text: JSON.stringify(result, null, 2),
-            },
-          ],
-        };
-      }
-
-      default:
-        throw new Error(`Unknown tool: ${name}`);
+    if (!handler) {
+      throw new Error(`Unknown tool: ${name}`);
     }
+
+    const result = await handler(args ?? {});
+    return {
+      content: [
+        {
+          type: 'text',
+          text: JSON.stringify(result, null, 2),
+        },
+      ],
+    };
   } catch (error: unknown) {
     let errorMessage = 'Unknown error occurred';
     if (error instanceof Error) {

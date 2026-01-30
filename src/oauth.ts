@@ -53,9 +53,6 @@ export class NounProjectOAuth {
    * Get complete headers including OAuth authorization
    */
   getHeaders(url: string, method: string = 'GET'): Record<string, string> {
-    return {
-      ...this.getAuthHeaders(url, method),
-      'Content-Type': 'application/json',
-    };
+    return this.getAuthHeaders(url, method);
   }
 }
