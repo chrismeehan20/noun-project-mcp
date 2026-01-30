@@ -98,6 +98,15 @@ Or for a local development build:
 
 Restart Claude Cowork after editing the config file.
 
+## Icon Downloads
+
+The `get_download_url` tool downloads icons via the Noun Project API. On the free API plan:
+
+- **PNG** downloads work for **all icons**
+- **SVG** downloads are limited to **public domain icons** only
+
+If a download request returns a 403 error (e.g. requesting SVG for a non-public-domain icon), the tool automatically returns a link to the icon's page on thenounproject.com as a fallback. For full SVG access to all icons, a paid API plan is required (~$150/month — contact Noun Project for details).
+
 ## Available Tools
 
 ### 1. search_icons
@@ -197,7 +206,7 @@ Check current API usage and limits.
 
 ### 7. get_download_url
 
-Get a download URL for an icon with customization.
+Get a download URL for an icon with customization. PNG works for all icons on the free plan; SVG is limited to public domain icons. Falls back to a website link on 403 errors.
 
 **Parameters:**
 - `icon_id` (required): The icon's unique ID

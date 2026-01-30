@@ -196,7 +196,7 @@ export const TOOLS: Tool[] = [
   {
     name: 'get_download_url',
     description:
-      'Get a download URL for an icon with custom color and size options. Supports SVG and PNG formats. For PNG, you can specify pixel size (20-1200). For color, use hex values without the # prefix. Note: Free API access is limited to public domain icons only.',
+      'Get a download URL for an icon with custom color and size options. PNG downloads work for all icons on the free API plan. SVG downloads are limited to public domain icons on the free plan. If the download fails (e.g. 403), returns a link to the icon\'s Noun Project page instead. For color, use hex values without the # prefix.',
     inputSchema: {
       type: 'object',
       properties: {

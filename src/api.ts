@@ -190,11 +190,12 @@ export class NounProjectAPI {
   }
 
   /**
-   * Get download URL for an icon with custom color/size
-   * Note: Free API access is limited to public domain icons
+   * Get download URL for an icon with custom color/size.
+   * On 403, falls back to returning the icon's Noun Project page URL.
    */
   async getDownloadUrl(params: DownloadIconParams) {
     const { icon_id, ...rest } = params;
+
     const queryParams = new URLSearchParams(
       Object.fromEntries(
         Object.entries(rest)
@@ -209,11 +210,26 @@ export class NounProjectAPI {
     }`;
     const headers = this.oauth.getHeaders(url);
 
-    const response = await this.client.get(`/v2/icon/${icon_id}/download`, {
-      params: queryString ? Object.fromEntries(queryParams) : undefined,
-      headers,
-    });
+    try {
+      const response = await this.client.get(`/v2/icon/${icon_id}/download`, {
+        params: queryString ? Object.fromEntries(queryParams) : undefined,
+        headers,
+      });
 
-    return response.data;
+      return response.data;
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { status?: number } };
+      if (axiosError.response?.status === 403) {
+        const fallback: Record<string, string> = {
+          url: `https://thenounproject.com/icon/${icon_id}/`,
+          note: 'Download failed (403 Forbidden). On the free API plan, PNG downloads work for all icons but SVG downloads are limited to public domain icons. Visit the URL above to download this icon manually.',
+        };
+        if (params.filetype === 'svg') {
+          fallback.suggestion = 'Try requesting filetype "png" instead — PNG downloads work for all icons on the free plan.';
+        }
+        return fallback;
+      }
+      throw error;
+    }
   }
 }
